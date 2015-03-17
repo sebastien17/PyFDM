@@ -23,6 +23,9 @@ import setuptools
 from setuptools import setup
 from setuptools.command.test import test as TestCommand
 
+from Cython.Build import cythonize
+from distutils.extension import Extension
+
 # For Python 2/3 compatibility, pity we can't use six.moves here
 try:  # try Python 3 imports first
     import configparser
@@ -44,6 +47,7 @@ if namespace:
 else:
     pkg_path = package
 
+	
 # Version configuration
 versionfile_path = os.path.join(pkg_path, '_version.py')
 tag_prefix = 'v'  # tags are like v1.2.0
@@ -58,7 +62,14 @@ version_full = '{full}'
 def get_versions(default=dict(), verbose=False):
     return dict(version=version_version, full=version_full)
 """
-
+extensions = [
+    Extension("pyfdm.fdmexec", ["pyfdm/fdmexec.pyx"],
+        include_dirs = ['./jsbsim/src/'],
+        language="c++",
+		library_dirs = ['./jsbsim/mgw_build/src'],
+		libraries = ['JSBSim'],
+		)
+]
 
 class PyTest(TestCommand):
     user_options = [("cov=", None, "Run coverage"),
@@ -500,28 +511,29 @@ def setup_package():
                  'cov': ('setup.py', root_pkg)}}
 
     setup(name=package,
-          version=version,
-          url=metadata['url'],
-          description=metadata['description'],
-          author=metadata['author'],
-          author_email=metadata['author_email'],
-          license=metadata['license'],
-          long_description=read('README.rst'),
-          classifiers=metadata['classifiers'],
-          test_suite='tests',
-          packages=setuptools.find_packages(exclude=['tests', 'tests.*']),
-          namespace_packages=namespace,
-          install_requires=install_reqs,
-          setup_requires=['six'],
-          cmdclass=cmdclass,
-          tests_require=['pytest-cov', 'pytest'],
-          include_package_data=True,
-          package_data={package: metadata['package_data']},
-          data_files=[('.', metadata['data_files'])],
-          command_options=command_options,
-          entry_points={'console_scripts': console_scripts},
-          zip_safe=False)  # do not zip egg file after setup.py install
-
+		version=version,
+		url=metadata['url'],
+		description=metadata['description'],
+		author=metadata['author'],
+		author_email=metadata['author_email'],
+		license=metadata['license'],
+		long_description=read('README.rst'),
+		classifiers=metadata['classifiers'],
+		test_suite='tests',
+		packages=setuptools.find_packages(exclude=['tests', 'tests.*']),
+		namespace_packages=namespace,
+		install_requires=install_reqs,
+		setup_requires=['six'],
+		cmdclass=cmdclass,
+		tests_require=['pytest-cov', 'pytest'],
+		include_package_data=True,
+		package_data={package: metadata['package_data']},
+		data_files=[('.', metadata['data_files'])],
+		command_options=command_options,
+		entry_points={'console_scripts': console_scripts},
+		zip_safe=False,  # do not zip egg file after setup.py install
+		ext_modules=cythonize(extensions)
+		)
 
 if __name__ == "__main__":
     setup_package()

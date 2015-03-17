@@ -10,6 +10,7 @@
 __pycache__/*
 .cache/*
 .*.swp
+pyfdm/*.cpp
 
 # Project files
 .ropeproject
@@ -17,6 +18,8 @@ __pycache__/*
 .pydevproject
 .settings
 .idea
+jsbsim/*
+venv/*
 
 # Package files
 *.egg
