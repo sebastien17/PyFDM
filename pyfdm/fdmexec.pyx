@@ -5,7 +5,13 @@ from libcpp cimport bool
 from libcpp.string cimport string
 from libcpp.vector cimport vector
 
-import os, platform
+import os, platform, time
+
+
+cdef extern from "input_output/FGPropertyManager.h" namespace "JSBSim":
+    cdef cppclass c_FGPropertyManager "JSBSim::FGPropertyManager":
+        c_FGPropertyManager()
+        void Tie(string name, float *pointer, bool useDefault=True)
 
 cdef extern from "models/FGPropulsion.h" namespace "JSBSim":
     cdef cppclass c_FGPropulsion "JSBSim::FGPropulsion":
@@ -71,6 +77,7 @@ cdef extern from "FGFDMExec.h" namespace "JSBSim":
         double IncrTime() 
         int GetDebugLevel()   
         c_FGPropulsion* GetPropulsion()
+        c_FGPropertyManager* GetPropertyManager()
 
 # this is the python wrapper class
 cdef class FGFDMExec:
@@ -107,7 +114,23 @@ cdef class FGFDMExec:
             for prop in record_properties:
                 y[prop].append(self.get_property_value(prop))
         return (t,y)
-
+        
+        
+    def realtime(self, input_properties = [], output_properties = [], dt=1.0/100, max_time = 10.0, verbose = False):
+        #cdef float my_param = 0.0
+        #self.thisptr.GetPropertyManager().Tie("position/h-agl-ft", &my_param)
+        
+        self.set_dt(dt)
+        self.run_ic()
+        initial_irl_time = time.time() # In second precise to microsecond
+        while(self.get_sim_time() < max_time): 
+            #TODO : Read input
+            while(self.get_sim_time() < (time.time() - initial_irl_time)):
+                self.run()
+            #TODO : Write output
+        print('Total time {0}'.format(time.time() - initial_irl_time))
+        
+        
     def find_root_dir(self, search_paths=[], verbose=False):
         root_dir = None
         search_paths.append(os.environ.get("JSBSIM"))
