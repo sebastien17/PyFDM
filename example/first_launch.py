@@ -4,7 +4,7 @@
 import os
 from pyfdm import fdmexec
 
-JSBSIM_ROOT= os.path.abspath('../jsbsim/') + os.sep
+JSBSIM_ROOT = os.path.abspath('../jsbsim/') + os.sep
 
 
 #Load

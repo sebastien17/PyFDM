@@ -181,7 +181,7 @@ cdef class FGFDMExec:
             AircraftPath, defaults to true
         @return true if successful 
         """
-        return self.thisptr.LoadModel(model, add_model_to_path)
+        return self.thisptr.LoadModel(model.encode('utf8'),add_model_to_path)
 
     def load_model_with_paths(self, model, aircraft_path,
                    engine_path, systems_path, add_model_to_path = True):
@@ -197,8 +197,8 @@ cdef class FGFDMExec:
             AircraftPath, defaults to true
         @return true if successful
         """
-        return self.thisptr.LoadModel(model, aircraft_path,
-            engine_path, systems_path, add_model_to_path)
+        return self.thisptr.LoadModel(model.encode('utf8'), aircraft_path.encode('utf8'),
+            engine_path.encode('utf8'), systems_path.encode('utf8'), add_model_to_path.encode('utf8'))
 
     def load_script(self, script, delta_t=0.0, initfile=""):
         """
@@ -213,7 +213,7 @@ cdef class FGFDMExec:
             is not given in either place, an error will result.
         @return true if successfully loads; false otherwise. */
         """
-        return self.thisptr.LoadScript(script, delta_t, initfile)
+        return self.thisptr.LoadScript(script.encode('utf8'), delta_t, initfile.encode('utf8'))
 
     def set_engine_path(self, path):
         """
@@ -221,7 +221,7 @@ cdef class FGFDMExec:
         @param path path to the directory under which engine config
             files are kept, for instance "engine"
         """
-        return self.thisptr.SetEnginePath(path)
+        return self.thisptr.SetEnginePath(path.encode('utf8'))
 
     def set_aircraft_path(self, path):
         """
@@ -230,7 +230,7 @@ cdef class FGFDMExec:
             "aircraft". Under aircraft, then, would be directories for various
             modeled aircraft such as C172/, x15/, etc. 
         """
-        return self.thisptr.SetAircraftPath(path)
+        return self.thisptr.SetAircraftPath(path.encode('utf8'))
 
     def set_systems_path(self, path):
         """
@@ -238,14 +238,14 @@ cdef class FGFDMExec:
         @param path path to the directory under which systems config
             files are kept, for instance "systems"
         """
-        return self.thisptr.SetSystemsPath(path)
+        return self.thisptr.SetSystemsPath(path.encode('utf8'))
 
     def set_root_dir(self, path):
         """
         Sets the root directory where JSBSim starts looking for its system directories.
         @param path the string containing the root directory.
         """
-        self.thisptr.SetRootDir(path)
+        self.thisptr.SetRootDir(path.encode('utf8'))
 
         # this is a hack to fix a bug in JSBSim
         self.set_engine_path("engine")
@@ -289,7 +289,7 @@ cdef class FGFDMExec:
         @param property the name of the property
         @result the value of the specified property 
         """
-        return self.thisptr.GetPropertyValue(name)
+        return self.thisptr.GetPropertyValue(name.encode('utf8'))
 
     def set_property_value(self, name, value):
         """
@@ -297,7 +297,7 @@ cdef class FGFDMExec:
         @param property the property to be set
         @param value the value to set the property to *
         """
-        self.thisptr.SetPropertyValue(name, value)
+        self.thisptr.SetPropertyValue(name.encode('utf8'), value)
 
     def get_model_name(self):
         """
@@ -322,7 +322,7 @@ cdef class FGFDMExec:
         be logged.
         @param fname the filename of an output directives file.
         """
-        return self.thisptr.SetOutputDirectives(fname)
+        return self.thisptr.SetOutputDirectives(fname.encode('utf8'))
 
     #def force_output(self, index):
         #"""
