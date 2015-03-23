@@ -1,0 +1,383 @@
+﻿
+Utilisation : fgfs [ option ... ]
+
+Options générales :
+   --help, -h                   Affiche les options de ligne de commande les
+                                plus appropriées.
+   --verbose, -v                Affiche toutes les options de ligne de commande
+                                lorsqu'elle est combinée avec --help ou -h.
+   --version                    Affiche la version actuelle de FlightGear.
+   --fg-root=path               Spéficie l'emplacement du répertoire racine
+                                des données.
+   --fg-scenery=path            Spéficie l'emplacement des répertoires des
+                                scènes.
+                                Positionné par défaut à $FG_ROOT/Scenery.
+   --fg-aircraft=path           Spéficie les emplacements des répertoires des
+                                aéronefs additionnels.
+   --language=code              Choisit la langue pour cette session.
+   --restore-defaults           Restaurer tous les paramètres utilisateurs à
+                                leurs valeurs par défaut (options de rendu,
+                                etc).
+   --disable-save-on-exit       Ne sauvegarde pas les préférences lors de la
+                                sortie du programme.
+   --enable-save-on-exit        Autorise la sauvegarde des préférences à la
+                                sortie du programme.
+   --control=mode               Mode de contrôle primaire (joystick, clavier,
+                                souris).
+   --browser-app=path           Précise le chemin vers votre navigateur
+                                Internet.
+   --prop:[type:]name=value     Positionne la propriété <nom> à la <valeur>.
+                                Le <type> peut ├¬tre l'un parmi string, double,
+                                float, long, int, ou bool.
+   --config=path                Charge des propriétés additionnelles à
+                                partir de l'emplacement.
+   --units-feet                 Utilise le pied comme unité de mesure.
+   --units-meters               Utilise le mètre comme unité de mesure.
+
+Options des caractéristiques :
+   --disable-panel              Désactive le panneau des instruments.
+   --enable-panel               Active le panneau des instruments.
+   --disable-hud                Désactive le collimateur t├¬te haute (Head Up
+                                Display, HUD).
+   --enable-hud                 Active le collimateur t├¬te haute (Head Up
+                                Display, HUD).
+   --disable-anti-alias-hud     Désactive l'anti-crénelage du collimateur.
+   --enable-anti-alias-hud      Active l'anti-crénelage du collimateur.
+   --disable-hud-3d             Désactive le collimateur 3D.
+   --enable-hud-3d              Active le collimateur 3D.
+   --hud-tris                   Le collimateur affiche le nombre de triangles
+                                rendus.
+   --hud-culled                 Le collimateur affiche le pourcentage de
+                                triangles supprimés.
+   --disable-random-objects     Exclut les objets aléatoires des scènes.
+                                (b├ótiments, etc.)
+   --enable-random-objects      Inclut les objets aléatoires dans les scènes.
+                                (b├ótiments, etc.)
+   --disable-random-vegetation  Désactiver les objets de végétation
+                                aléatoires
+   --enable-random-vegetation   Activer les objets de végétation aléatoires
+   --disable-random-buildings   Désactiver les objets b├ótiments aléatoires
+   --enable-random-buildings    Activer les objets b├ótiments aléatoires
+   --disable-ai-models          Option dépréciée (désactive le
+                                sous-système IA interne).
+   --enable-ai-models           Active le sous-système IA (nécessaire pour le
+                                multi-joueurs, le trafic AI et de nombreuses
+                                autres animations).
+   --disable-ai-traffic         Désactive le trafic artificiel.
+   --enable-ai-traffic          Active le trafic artificiel.
+   --ai-scenario=scenario       Ajoute et active un nouveau scénario. Les
+                                options multiples sont autorisées.
+   --disable-freeze             Démarre dans un état fonctionnel.
+   --enable-freeze              Démarre dans un état gelé.
+   --disable-fuel-freeze        Le carburant est consommé normalement.
+   --enable-fuel-freeze         La quantité de carburant dans les réservoirs
+                                reste constante.
+   --disable-clock-freeze       L'horloge avance normalement.
+   --enable-clock-freeze        L'horloge n'avance pas.
+
+   --failure={pitot|static|vacuum|electrical}
+                                Met en panne les systèmes pitot, statique, de
+                                vide, ou électrique (répéter l'option pour
+                                des pannes système multiples).
+
+Options sonores :
+   --show-sound-devices         Affiche une liste des ressources audio
+                                disponibles.
+   --sound-device               Précise spécifiquement la ressource audio à
+                                utiliser.
+   --disable-sound              Désactive les effets sonores.
+   --enable-sound               Active les effets sonores.
+
+Options de rendu :
+   --disable-splash-screen      Désactive l'écran d'accueil.
+   --enable-splash-screen       Active l'écran d'accueil.
+   --disable-mouse-pointer      Désactive le pointeur de la souris
+                                supplémentaire.
+   --enable-mouse-pointer       Active le pointeur de la souris
+                                supplémentaire.
+                                (c'est-à-dire pour l'affichage plein écran
+                                avec des cartes à base de Voodoo)
+   --max-fps=Hz                 Taux maximum de rafra├«chissement en Hz.
+   --bpp=depth                  Précise le nombre de bits par pixel.
+   --fog-disable                Active le brouillard/brume.
+   --fog-fastest                Active un rendu brouillard/brume plus rapide.
+   --fog-nicest                 Active un rendu brouillard/brume plus joli.
+   --disable-enhanced-lighting  Désactive l'éclairage amélioré des pistes.
+   --enable-enhanced-lighting   Active l'éclairage amélioré des pistes.
+
+   --disable-distance-attenuation
+                                Désactive l'atténuation de l'éclairage des
+                                pistes due à la distance.
+
+   --enable-distance-attenuation
+                                Active l'atténuation de l'éclairage des
+                                pistes due à la distance.
+   --disable-horizon-effect     Désactive l'illusion de loupe des corps
+                                célestes à proximité de l'horizon.
+   --enable-horizon-effect      Active l'illusion de loupe des corps célestes
+                                à proximité de l'horizon.
+
+   --disable-specular-highlight
+                                Désactive les réflexions spéculaires sur les
+                                objets texturés.
+   --enable-specular-highlight  Active les réflexions spéculaires sur les
+                                objets texturés.
+   --fov=degrees                Précise le champ de l'angle de vue.
+
+   --aspect-ratio-multiplier=factor
+                                Précise un multiplicateur pour le ratio de
+                                rendu.
+   --disable-fullscreen         Désactive le mode plein écran.
+   --enable-fullscreen          Active le mode plein écran.
+   --shading-flat               Active l'ombrage à plat.
+   --shading-smooth             Active l'ombrage doux.
+   --disable-textures           Désactive les textures.
+   --enable-textures            Active les textures.
+   --materials-file=file        Précise le fichier de matériaux utilisé pour
+                                le rendu des scènes (par défaut :
+                                materials.xml).
+   --texture-filtering=value    Filtre de texture anisotropique : les valeurs
+                                doivent ├¬tre 1 (défault), 2, 4, 8 ou 16.
+   --disable-wireframe          Désactive le mode de dessin en fil de fer.
+   --enable-wireframe           Active le mode de dessin en fil de fer.
+   --geometry=WxH               Précise la géométrie de la fen├¬tre
+                                (640x480, etc.).
+   --view-offset=value          Précise la direction de vue vers l'avant par
+                                défaut comme décalage par rapport à une
+                                direction droite devant. Les valeurs
+                                autorisées sont LEFT, RIGHT, CENTER, ou un
+                                nombre spécifique en degrés.
+
+Options des aéronefs :
+   --aircraft=name              Choisit un profil d'aéronef défini par un
+                                fichier <nom>-set.xml.
+   --show-aircraft              Affiche une liste des types d'aéronefs
+                                actuellement disponibles.
+
+   --min-status={alpha,beta,early-production,production}
+                                Permet de définir le niveau de statut minimum
+                                (= statut de développement) pour tous les
+                                aéronefs listés.
+   --fdm=name                   Choisit le modèle dynamique de vol de base.
+                                Peut ├¬tre jsb, larcsim, yasim, magic, balloon,
+                                ada, external, ou null.
+   --aero=name                  Choisit le modèle aérodynamique de l'aéronef
+                                à charger.
+   --model-hz=n                 Lance le FDM à ce taux (itérations par
+                                seconde).
+   --speed=n                    Lance le FDM 'n' fois plus vite que le temps
+                                réel.
+   --trim                       Affecte le modèle
+                                (uniquement avec fdm=jsbsim).
+   --notrim                     NE PAS essayer d'affecter le modèle
+                                (uniquement avec fdm=jsbsim).
+   --on-ground                  Démarre au niveau du sol (par défaut).
+   --in-air                     Démarre en altitude (tacite quand on utilise
+                                --altitude).
+   --enable-auto-coordination   Active l'auto-coordination.
+   --disable-auto-coordination  Désactive l'auto coordination.
+   --livery=name                Choisit une livrée d'aéronef.
+   --vehicle=name               Choisit un profil de véhicule défini par un
+                                fichier <nom>-set.xml
+
+Options de temps :
+
+   --timeofday={real,dawn,morning,noon,afternoon,dusk,evening,midnight}
+                                Précise l'heure du jour.
+   --season={summer,winter}     Précise la saison de démarrage.
+   --time-offset=[+-]hh:mm:ss   Ajoute ce décalage temporel.
+   --time-match-real            Synchronise l'heure avec l'heure réelle.
+   --time-match-local           Synchronise l'heure avec l'heure locale
+                                réelle.
+
+   --start-date-sys=yyyy:mm:dd:hh:mm:ss
+                                Précise une date/heure de départ conforme à
+                                l'option choisie.
+
+   --start-date-gmt=yyyy:mm:dd:hh:mm:ss
+                                Précise une date/heure de départ conforme à
+                                l'option choisie.
+
+   --start-date-lat=yyyy:mm:dd:hh:mm:ss
+                                Précise une date/heure de départ conforme à
+                                l'option choisie.
+
+Position et orientation initiales :
+   --airport=ID                 Précise la position de démarrage relative à
+                                un aéroport.
+   --parking-id=name            Précise la position de parking sur un
+                                aéroport (un aéroport doit également ├¬tre
+                                précisé).
+   --runway=rwy_no              Précise la piste de départ (un aéroport doit
+                                également ├¬tre précisé).
+   --carrier=[name|ID]          Précise la position de démarrage sur un
+                                porte-avions AI.
+   --parkpos=name               Précise la position de parking sur un
+                                porte-avions AI (un porte-avions doit
+                                également ├¬tre précisé).
+   --vor=ID                     Précise la position de démarrage relative à
+                                un VOR.
+   --vor-frequency=frequency    Précise la fréquence du VOR. A utiliser avec
+                                --vor=ID.
+   --ndb=ID                     Précise la position de démarrage relative à
+                                un NDB.
+   --ndb-frequency=frequency    Précise la fréquence du NDB. A utiliser avec
+                                --ndb=ID.
+   --fix=ID                     Précise la position de démarre relative à un
+                                fix.
+   --offset-distance=nm         Précise la distance par rapport un un point de
+                                référence (en miles).
+   --offset-azimuth=degrees     Précise le cap par rapport à un point de
+                                référence.
+   --lon=degrees                Longitude de démarrage (ouest = -).
+   --lat=degrees                Latitude de démarrage (sud = -).
+   --altitude=value             Altitude de démarrage.
+   --heading=degrees            Précise le cap de démarrage (Psi).
+   --roll=degrees               Précise l'angle de roulis (Phi).
+   --pitch=degrees              Précise l'angle d'inclinaison (Theta).
+   --uBody=units_per_sec        Précise la vélocité le long de l'axe X.
+   --vBody=units_per_sec        Précise la vélocité le long de l'axe Y.
+   --wBody=units_per_sec        Précise la vélocité le long de l'axe Z.
+   --vNorth=units_per_sec       Précise la vélocité le long d'un axe
+                                sud-nord.
+   --vEast=units_per_sec        Précise la vélocité le long d'un axe
+                                ouest-est.
+   --vDown=units_per_sec        Précise la vélocité le long d'un axe
+                                vertical.
+   --vc=knots                   Précise la vitesse air initiale.
+   --mach=num                   Précise le nombre de mach initial.
+   --glideslope=degrees         Précise l'angle de vol (peut ├¬tre positif).
+   --roc=fpm                    Précise le taux de montée initial (peut ├¬tre
+                                négatif).
+
+Options de point tournant de route :
+   --wp=ID[@alt]                Précise un point tournant (waypoint) pour le
+                                pilote automatique GC.
+   --flight-plan=file           Lire tous les points tournants à partir d'un
+                                fichier.
+
+Options de l'avionique :
+   --com1=frequency             Précise la fréquence radio COM1.
+   --com2=frequency             Précise la fréquence radio COM2.
+   --nav1=[radial:]frequency    Précise la fréquence radio NAV1,
+                                éventuellement précédée d'une radiale.
+   --nav2=[radial:]frequency    Précise la fréquence radi NAV2,
+                                éventuellement précédée d'une radiale.
+   --adf1=[rotation:]frequency  Précise la fréquence radio ADF1,
+                                éventuellement précédée d'une rotation de
+                                carte.
+   --adf2=[rotation:]frequency  Précise la fréquence radio ADF2,
+                                éventuellement précédée d'une rotation de
+                                carte.
+   --dme={nav1|nav2|frequency}  Rend l'ADF esclave d'une des radios NAV, ou
+                                précise sa fréquence interne.
+
+Options d'environnement :
+   --metar=METAR                Passe un METAR pour concevoir la météo
+                                statique.
+
+   --disable-real-weather-fetch
+                                Désactive la récupération de la météo en
+                                temps réel se basant sur les METAR.
+   --enable-real-weather-fetch  Active la récupération de la météo en temps
+                                réel se basant sur les METAR (nécessite une
+                                connection Internet active).
+   --enable-clouds              Active les couches de nuages 2D (à plat).
+   --disable-clouds             Désactive les couches de nuages 2D (à plat).
+   --enable-clouds3d            Active les couches de nuages 3D
+                                (volumétriques).
+   --disable-clouds3d           Désactive les couches de nuages 3D
+                                (volumétriques).
+   --visibility=meters          Précise la visibilité initiale.
+   --visibility-miles=miles     Précise la visibilité initiale en miles.
+
+   --wind=DIR[:MAXDIR]@SPEED[:GUST]
+                                Précise que le vent vient de DIR (degrés) à
+                                la vitesse SPEED (noeud).
+   --random-wind                Paramètre une direction et une vitesse du vent
+                                aléatoires.
+   --turbulence=0.0 to 1.0      Précise la turbulence de 0.0 (calme) à 1.0
+                                (forte).
+
+   --ceiling=FT_ASL[:THICKNESS_FT]
+                                Crée un plafond couvert, optionnellement d'une
+                                épaisseur spécifique (par défaut, 2 000
+                                pieds).
+
+Options réseau :
+   --callsign                   Assigne un nom unique à un joueur.
+
+   --multiplay={in|out},hz,address,port
+                                Précise les paramètres de communication
+                                multijoueurs.
+
+   --proxy=[user:pwd@]host:port
+                                Précise quel serveur proxy (et port) à
+                                utiliser. Le nom d'utilisateur et le mot de
+                                passe sont optionnels et doivent déjà ├¬tre
+                                hachés avec l'algorithme MD5. Cette option
+                                n'est utilise que si elle est utilisée en
+                                conjonction avec l'option real-weather-fetch.
+   --httpd=port                 Active un serveur HTTP sur un port spécifié.
+   --telnet=port                Active un serveur telnet sur le port précisé.
+   --jpg-httpd=port             Active le serveur HTTP de captures d'écran sur
+                                le port précisé.
+   --disable-terrasync          Désactive le téléchargement/la mise à jour
+                                automatique des scènes.
+   --enable-terrasync           Active le téléchargement/la mise à jour
+                                automatique des scènes.
+   --terrasync-dir              Précise le répertoire cible pour les
+                                téléchargements des scènes.
+
+Options d'entrée/sortie :
+   --generic=params             Ouvre une connexion utilisant une interface de
+                                communication prédéfinie et un protocole de
+                                communication présélectionné.
+   --atlas=params               Ouvre une connexion en utilisant le protocole
+                                Atlas.
+   --atcsim=params              Ouvre une connexion en utilisant le protocole
+                                de simulation ATC (atc610x).
+   --AV400=params               Emet le protocole Garmin AV400 nécessaire pour
+                                gérer un GPS de la série Garmin 196/296.
+   --AV400Sim=params            Emet l'ensemble des champs AV400 nécessaires
+                                pour gérer un GPS de la série Garmin 400 à
+                                partir de FlightGear.
+   --garmin=params              Ouvre une connexion en utilisant le protocole
+                                GPS Garmin.
+   --joyclient=params           Ouvre une connexion en utilisant un joystick
+                                Agwagon.
+   --jsclient=params            Ouvre une connexion vers une télécommande
+                                joystick.
+   --native-ctrls=params        Ouvre une connexion utilisant le protocole
+                                Native Controls de FG.
+   --native-gui=params          Ouvre une connexion utilisant le protocole
+                                Native GUI de FG.
+   --native-fdm=params          Ouvre une connexion utilisant le protocole
+                                Native FDM de FG.
+   --native=params              Ouvre une connexion en utilisant le protocole
+                                FG Native.
+   --nmea=params                Ouvre une connexion en utilisant le protocole
+                                NMEA.
+   --opengc=params              Ouvre une connexion utilisant le protocole
+                                OpenGC.
+   --props=params               Ouvre une connexion utilisant le gestionnaire
+                                de propriétés interactif.
+   --pve=params                 Ouvre une connexion utilisant le protocole PVE.
+   --ray=params                 Ouvre une connexion utilisant le protocole de
+                                déplacement de siège Ray Woodworth.
+   --rul=params                 Ouvre une connexion utilisant le protocole RUL.
+
+Options de débogage :
+   --enable-fpe                 Abandon en cas d'exception sur point flottant.
+   --fgviewer                   Utilise un visualisateur de modèle plutôt que
+                                de charger le simulateur entier.
+
+   --log-level={bulk,debug,info,warn,alert}
+                                Précise quel niveau de journalisation
+                                utiliser.
+
+   --log-class=[ai,environment,flight,general,io,network,sound,terrain,...]
+                                Précise quelles classe(s) de journalisation
+                                utiliser.
+   --trace-read=property        Trace les lectures pour une propriété.
+   --trace-write=property       Trace les écritures pour une propriété.

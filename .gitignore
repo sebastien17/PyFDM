@@ -20,6 +20,7 @@ pyfdm/*.cpp
 .idea
 jsbsim/*
 venv/*
+example/notebook
 
 # Package files
 *.egg

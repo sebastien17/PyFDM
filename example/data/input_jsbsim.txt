@@ -1,0 +1,8 @@
+/controls/flight/aileron
+/controls/flight/elevator
+/controls/flight/rudder
+
+/surface-positions/left-aileron-pos-norm
+/surface-positions/right-aileron-pos-norm
+/surface-positions/elevator-pos-norm
+/surface-positions/rudder-pos-norm

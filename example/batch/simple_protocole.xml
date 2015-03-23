@@ -1,0 +1,27 @@
+﻿<?xml version="1.0"?>
+<PropertyList>
+    <generic>
+        <output>
+        <line_separator>newline</line_separator>
+        <var_separator>tab</var_separator>
+        <chunk>
+            <name>aileron cmd</name>
+            <node>/controls/flight/aileron</node>
+            <type>float</type>
+            <format>%03.2f</format>
+        </chunk>
+        <chunk>
+            <name>elevator cmd</name>
+            <node>/controls/flight/elevator</node>
+            <type>float</type>
+            <format>%03.2f</format>
+        </chunk>
+        <chunk>
+            <name>rudder cmd</name>
+            <node>/controls/flight/rudder</node>
+            <type>float</type>
+            <format>%03.2f</format>
+        </chunk>
+        </output>
+    </generic>
+</PropertyList>
