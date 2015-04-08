@@ -1,0 +1,21 @@
+<?xml version="1.0"?>
+ <PropertyList>
+ <generic>
+    <output>
+        <line_separator>newline</line_separator>
+        <var_separator>tab</var_separator>
+        <chunk>
+           <node>/position/altitude-agl-ft</node>
+           <name>altitude to go</name>
+           <type>float</type>
+           <format>%03.2f</format>
+         </chunk>
+        <chunk>
+           <node>/orientation/heading-deg</node>
+           <name>Heading</name>
+           <type>float</type>
+           <format>%03.3f</format>
+         </chunk>
+    </output>
+  </generic>
+ </PropertyList>
