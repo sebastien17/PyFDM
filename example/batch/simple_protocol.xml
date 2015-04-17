@@ -10,22 +10,28 @@
             <binary_footer>none</binary_footer>
             <byte_order>network</byte_order>
             <chunk>
+                <name>timestamp</name>
+                <node>sim/time/elapsed-sec</node>
+                <type>float</type>
+                <format>%f</format>
+            </chunk>
+            <chunk>
                 <name>aileron cmd</name>
                 <node>/controls/flight/aileron</node>
                 <type>float</type>
-                <format>%03.2f</format>
+                <format>%f</format>
             </chunk>
             <chunk>
                 <name>elevator cmd</name>
                 <node>/controls/flight/elevator</node>
                 <type>float</type>
-                <format>%03.2f</format>
+                <format>%f</format>
             </chunk>
             <chunk>
                 <name>rudder cmd</name>
                 <node>/controls/flight/rudder</node>
                 <type>float</type>
-                <format>%03.2f</format>
+                <format>%f</format>
             </chunk>
         </output>
     </generic>

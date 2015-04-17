@@ -116,18 +116,13 @@ cdef class FGFDMExec:
         return (t,y)
         
         
-    def realtime(self, input_properties = [], output_properties = [], dt=1.0/100, max_time = 10.0, verbose = False):
-        #cdef float my_param = 0.0
-        #self.thisptr.GetPropertyManager().Tie("position/h-agl-ft", &my_param)
-        
+    def realtime(self, dt=1.0/100, max_time = 10.0, verbose = False):
         self.set_dt(dt)
         self.run_ic()
         initial_irl_time = time.time() # In second precise to microsecond
         while(self.get_sim_time() < max_time): 
-            #TODO : Read input
             while(self.get_sim_time() < (time.time() - initial_irl_time)):
                 self.run()
-            #TODO : Write output
         print('Total time {0}'.format(time.time() - initial_irl_time))
         
         
