@@ -63,7 +63,7 @@ def get_versions(default=dict(), verbose=False):
     return dict(version=version_version, full=version_full)
 """
 extensions = [
-    Extension("pyfdm.fdmexec", ["pyfdm/fdmexec.pyx"],
+    Extension("pyfdm.fdmexec", ["pyfdm/fdmexec.pyx", "pyfdm/cpp/tools.cpp"],
         include_dirs = ['./jsbsim/src/'],
         language="c++",
 		library_dirs = ['./jsbsim/mgw_build/src'],

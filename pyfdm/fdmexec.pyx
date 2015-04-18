@@ -1,5 +1,22 @@
 #!/usr/bin/env python
-# -*- coding: utf-8 -*-
+#	-*- coding: utf-8 -*-
+
+#%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+#	This file is part of PyFDM.
+
+#	PyFDM is free software: you can redistribute it and/or modify
+#	it under the terms of the GNU General Public License as published by
+#	the Free Software Foundation, either version 3 of the License, or
+#	(at your option) any later version.
+
+#	PyFDM is distributed in the hope that it will be useful,
+#	but WITHOUT ANY WARRANTY; without even the implied warranty of
+#	MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+#	GNU General Public License for more details.
+
+#	You should have received a copy of the GNU General Public License
+#	along with PyFDM.  If not, see <http://www.gnu.org/licenses/>.
+#	%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 
 from libcpp cimport bool
 from libcpp.string cimport string
@@ -7,6 +24,8 @@ from libcpp.vector cimport vector
 
 import os, platform, time
 
+cdef extern from "cpp/tools.h":
+    cdef double getcurrentseconds()
 
 cdef extern from "input_output/FGPropertyManager.h" namespace "JSBSim":
     cdef cppclass c_FGPropertyManager "JSBSim::FGPropertyManager":
@@ -79,13 +98,13 @@ cdef extern from "FGFDMExec.h" namespace "JSBSim":
         c_FGPropulsion* GetPropulsion()
         c_FGPropertyManager* GetPropertyManager()
 
-# this is the python wrapper class
+#	this is the python wrapper class
 cdef class FGFDMExec:
 
-    cdef c_FGFDMExec *thisptr      # hold a C++ instance which we're wrapping
+    cdef c_FGFDMExec *thisptr      #	hold a C++ instance which we're wrapping
 
     def __cinit__(self, **kwargs):
-        # this hides startup message
+        #	this hides startup message
         os.environ["JSBSIM_DEBUG"]=str(0)
         self.thisptr = new c_FGFDMExec(0,0)
 
@@ -115,16 +134,14 @@ cdef class FGFDMExec:
                 y[prop].append(self.get_property_value(prop))
         return (t,y)
         
-        
-    def realtime(self, dt=1.0/100, max_time = 10.0, verbose = False):
+    def realtime(self, dt=1.0/100, double max_time = 10.0, verbose = False):
         self.set_dt(dt)
         self.run_ic()
-        initial_irl_time = time.time() # In second precise to microsecond
-        while(self.get_sim_time() < max_time): 
-            while(self.get_sim_time() < (time.time() - initial_irl_time)):
-                self.run()
-        print('Total time {0}'.format(time.time() - initial_irl_time))
-        
+        cdef double initial_irl_time  =  getcurrentseconds()     #	In second precise to microsecond
+        while(self.thisptr.GetSimTime() < max_time): 
+            while(self.thisptr.GetSimTime() < (getcurrentseconds() - initial_irl_time)):
+                self.thisptr.Run()
+        print('Total time {0}'.format(getcurrentseconds() - initial_irl_time))
         
     def find_root_dir(self, search_paths=[], verbose=False):
         root_dir = None
@@ -265,7 +282,7 @@ cdef class FGFDMExec:
         """
         self.thisptr.SetRootDir(path.encode('utf8'))
 
-        # this is a hack to fix a bug in JSBSim
+        #	this is a hack to fix a bug in JSBSim
         self.set_engine_path("engine")
         self.set_aircraft_path("aircraft")
         self.set_systems_path("systems")
