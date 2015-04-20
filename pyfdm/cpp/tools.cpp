@@ -53,3 +53,19 @@ FUNCTIONS
     return (tval.tv_sec + tval.tv_usec*1e-6);
   }
 #endif
+
+#if defined(__BORLANDC__) || defined(_MSC_VER) || defined(__MINGW32__)
+  void sim_nsleep(long nanosec)
+  {
+    Sleep((DWORD)(nanosec*1e-6)); // convert nanoseconds (passed in) to milliseconds for Win32.
+  }
+#else
+  void sim_nsleep(long nanosec)
+  {
+    struct timespec ts, ts1;
+
+    ts.tv_sec = 0;
+    ts.tv_nsec = nanosec;
+    nanosleep(&ts, &ts1);
+  }
+#endif

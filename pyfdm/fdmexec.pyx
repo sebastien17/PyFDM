@@ -26,6 +26,7 @@ import os, platform, time
 
 cdef extern from "cpp/tools.h":
     cdef double getcurrentseconds()
+    cdef void sim_nsleep(long)
 
 cdef extern from "input_output/FGPropertyManager.h" namespace "JSBSim":
     cdef cppclass c_FGPropertyManager "JSBSim::FGPropertyManager":
@@ -107,6 +108,7 @@ cdef class FGFDMExec:
         #	this hides startup message
         os.environ["JSBSIM_DEBUG"]=str(0)
         self.thisptr = new c_FGFDMExec(0,0)
+        
 
     def __init__(self, root_dir=None):
         if (root_dir is None):
@@ -116,7 +118,7 @@ cdef class FGFDMExec:
                 raise IOError("Can't find root directory: {0}".format(root_dir))
             else:
                 self.set_root_dir(root_dir)
-    def simulate(self, record_properties=[], t_final=1, dt=1.0/120, verbose=False):
+    def simulate(self, record_properties=[], t_final=1, dt=1.0/60, verbose=False):
         y = {}
         t = []
         self.set_dt(dt)
@@ -134,13 +136,21 @@ cdef class FGFDMExec:
                 y[prop].append(self.get_property_value(prop))
         return (t,y)
         
-    def realtime(self, dt=1.0/100, double max_time = 10.0, verbose = False):
+    def realtime(self, dt=1.0/100, double max_time = 0.0, verbose = False):
         self.set_dt(dt)
         self.run_ic()
-        cdef double initial_irl_time  =  getcurrentseconds()     #	In second precise to microsecond
-        while(self.thisptr.GetSimTime() < max_time): 
-            while(self.thisptr.GetSimTime() < (getcurrentseconds() - initial_irl_time)):
-                self.thisptr.Run()
+        cdef long sleep_nseconds = (long)(dt*1e9)
+        cdef double initial_irl_time  = getcurrentseconds()      #	In second precise to microsecond
+        if(max_time == 0.0):
+            while(True): 
+                while(self.thisptr.GetSimTime() < (getcurrentseconds() - initial_irl_time)):
+                    self.thisptr.Run()
+                sim_nsleep(sleep_nseconds)
+        else:
+            while(self.thisptr.GetSimTime() < max_time): 
+                while(self.thisptr.GetSimTime() < (getcurrentseconds() - initial_irl_time)):
+                    self.thisptr.Run()
+                sim_nsleep(sleep_nseconds)
         print('Total time {0}'.format(getcurrentseconds() - initial_irl_time))
         
     def find_root_dir(self, search_paths=[], verbose=False):
@@ -200,6 +210,23 @@ cdef class FGFDMExec:
 
     def load_model(self, model, add_model_to_path = True):
         """
+        Loads an aircraft model.  The paths to the aircraft and engine
+        config file directories must be set prior to calling this.  See
+        below.
+        @param model the name of the aircraft model itself. This file will
+            be looked for in the directory specified in the AircraftPath variable,
+            and in turn under the directory with the same name as the model. For
+            instance: "aircraft/x15/x15.xml"
+        @param addModelToPath set to true to add the model name to the
+            AircraftPath, defaults to true
+        @return true if successful
+        """
+        
+        return self.thisptr.LoadModel(model.encode('utf8'),add_model_to_path)
+
+    def load_model_with_paths(self, model, aircraft_path,
+                   engine_path, systems_path, add_model_to_path = True):
+        """
         Loads an aircraft model.
         @param AircraftPath path to the aircraft/ directory. For instance:
             "aircraft". Under aircraft, then, would be directories for various
@@ -216,25 +243,10 @@ cdef class FGFDMExec:
             AircraftPath, defaults to true
         @return true if successful 
         """
-        return self.thisptr.LoadModel(model.encode('utf8'),add_model_to_path)
-
-    def load_model_with_paths(self, model, aircraft_path,
-                   engine_path, systems_path, add_model_to_path = True):
-        """
-        Loads an aircraft model.  The paths to the aircraft and engine
-        config file directories must be set prior to calling this.  See
-        below.
-        @param model the name of the aircraft model itself. This file will
-            be looked for in the directory specified in the AircraftPath variable,
-            and in turn under the directory with the same name as the model. For
-            instance: "aircraft/x15/x15.xml"
-        @param addModelToPath set to true to add the model name to the
-            AircraftPath, defaults to true
-        @return true if successful
-        """
         return self.thisptr.LoadModel(model.encode('utf8'), aircraft_path.encode('utf8'),
             engine_path.encode('utf8'), systems_path.encode('utf8'), add_model_to_path.encode('utf8'))
 
+    
     def load_script(self, script, delta_t=0.0, initfile=""):
         """
         Loads a script

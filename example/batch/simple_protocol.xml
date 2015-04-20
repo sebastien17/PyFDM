@@ -30,6 +30,19 @@
             <chunk>
                 <name>rudder cmd</name>
                 <node>/controls/flight/rudder</node>
+                <factor>-1</factor>
+                <type>float</type>
+                <format>%f</format>
+            </chunk>
+            <chunk>
+                <name>terrain elevation asl ft</name>
+                <node>position/ground-elev-ft</node>
+                <type>float</type>
+                <format>%f</format>
+            </chunk>
+            <chunk>
+                <name>engine throttle</name>
+                <node>/controls/engines/engine/throttle</node>
                 <type>float</type>
                 <format>%f</format>
             </chunk>
