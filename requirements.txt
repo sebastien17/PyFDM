@@ -1,3 +1,4 @@
 # Add your requirements here like:
 Cython>=0.22
 numpy>=1.9.1
+pyzmq>=14.5.0

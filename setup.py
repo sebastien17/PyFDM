@@ -68,7 +68,8 @@ extensions = [
         language="c++",
 		library_dirs = ['./jsbsim/mgw_build/src'],
 		libraries = ['JSBSim'],
-		)
+		),
+        Extension("pyfdm.zmq", ["pyfdm/zmq.py"])
 ]
 
 class PyTest(TestCommand):

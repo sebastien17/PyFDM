@@ -103,7 +103,11 @@ cdef extern from "FGFDMExec.h" namespace "JSBSim":
 cdef class FGFDMExec:
 
     cdef c_FGFDMExec *thisptr      #	hold a C++ instance which we're wrapping
-
+    cdef vector[string] _exchange_set_name
+    cdef vector[double] _exchange_set_value
+    cdef vector[string] _exchange_get_name
+    cdef vector[double] _exchange_get_value
+    
     def __cinit__(self, **kwargs):
         #	this hides startup message
         os.environ["JSBSIM_DEBUG"]=str(0)
@@ -118,6 +122,47 @@ cdef class FGFDMExec:
                 raise IOError("Can't find root directory: {0}".format(root_dir))
             else:
                 self.set_root_dir(root_dir)
+        
+    #Exchange Logics
+    def exchange_set_suscribe(self, list = None):
+        if(list == None):
+            self._exchange_set_name.clear()
+        else:
+            for name in list:
+                #TODO Check if property exists
+                self._exchange_set_name.push_back(name.encode('utf-8'))
+                
+    def exchange_get_suscribe(self, list = None):
+        if(list == None):
+            self._exchange_get_name.clear()
+        else:
+            for name in list:
+                #TODO Check if property exists
+                self._exchange_get_name.push_back(name.encode('utf-8'))
+
+    def exchange_set_value_list(self, vector[double] set_list):
+        if(set_list.size() == self._exchange_set_value.size()):
+            self._exchange_set_value = set_list
+
+    def exchange_get_value_list(self):
+        return self._exchange_get_value
+    
+    def _exchange_set(self):
+        cdef int N
+        if(self._exchange_set_name.empty() == False):
+            if(self._exchange_set_name.size() == self._exchange_set_value.size()):
+                N = self._exchange_set_name.size()
+                for i from 0 <= i < N :
+                    self.thisptr.SetPropertyValue(self._exchange_set_name[i], self._exchange_set_value[i]) 
+
+    def _exchange_get(self):
+        cdef int N
+        if(self._exchange_get_name.empty() == False):
+                N = self._exchange_get_name.size()
+                self._exchange_get_value.clear()
+                for i from 0 <= i < N :
+                    self._exchange_get_value.push_back(self.thisptr.GetPropertyValue(self._exchange_get_name[i])) 
+                    
     def simulate(self, record_properties=[], t_final=1, dt=1.0/60, verbose=False):
         y = {}
         t = []
@@ -144,12 +189,12 @@ cdef class FGFDMExec:
         if(max_time == 0.0):
             while(True): 
                 while(self.thisptr.GetSimTime() < (getcurrentseconds() - initial_irl_time)):
-                    self.thisptr.Run()
+                    self.run()
                 sim_nsleep(sleep_nseconds)
         else:
             while(self.thisptr.GetSimTime() < max_time): 
                 while(self.thisptr.GetSimTime() < (getcurrentseconds() - initial_irl_time)):
-                    self.thisptr.Run()
+                    self.run()
                 sim_nsleep(sleep_nseconds)
         print('Total time {0}'.format(getcurrentseconds() - initial_irl_time))
         
@@ -198,7 +243,13 @@ cdef class FGFDMExec:
         This function executes each scheduled model in succession.
         @param return true if successful, false if sim should be ended
         """
-        return self.thisptr.Run()
+        if(self._exchange_set_name.empty() == False):
+            self._exchange_set()
+        self.thisptr.Run()
+        if(self._exchange_get_name.empty() == False):
+            self._exchange_get()
+        
+        return 
 
     def run_ic(self):
         """
