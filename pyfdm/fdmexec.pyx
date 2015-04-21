@@ -23,7 +23,6 @@ from libcpp.string cimport string
 from libcpp.vector cimport vector
 
 import os, platform, time
-
 cdef extern from "cpp/tools.h":
     cdef double getcurrentseconds()
     cdef void sim_nsleep(long)
@@ -244,9 +243,11 @@ cdef class FGFDMExec:
         @param return true if successful, false if sim should be ended
         """
         if(self._exchange_set_name.empty() == False):
+            print('Set')
             self._exchange_set()
         self.thisptr.Run()
         if(self._exchange_get_name.empty() == False):
+            print('Get')
             self._exchange_get()
         
         return 

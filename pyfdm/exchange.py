@@ -18,7 +18,7 @@
 #	along with PyFDM.  If not, see <http://www.gnu.org/licenses/>.
 #	%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 
-import zmq as _zmq
+import zmq 
 import threading
 
 #Threading decorator definition
@@ -33,9 +33,10 @@ def in_thread(isDaemon = True):
         return wrapper
     return base_in_thread
 
-class exchange (object):
+class zmq_exchange(object):
     def __init__(self, _fdmexec):
-        self._zmq_context = _zmq.Context()
+        print('Zmq_Exchange Init')
+        self._zmq_context = zmq.Context()
         self.fdmexec = _fdmexec
         self._running = True
         self._thread_list = []
@@ -43,31 +44,32 @@ class exchange (object):
     def new_in(self, zmq_sock_in, list = None):
         if(list== None):
             return False
-        socket_in = self._zmq_context.socket(_zmq.SUB)
-        socket_in.bind(zmq_sock_in)
-        socket_in.setsockopt(_zmq.SUBSCRIBE, '')
+        socket = self._zmq_context.socket(zmq.SUB)
+        socket.connect(zmq_sock_in)
+        socket.setsockopt(zmq.SUBSCRIBE, '')
         self.fdmexec.exchange_set_suscribe(list)
-        self._thread_list.append(self._in_tmp)
+        self._thread_list.append(self._in_tmp(socket))
         return True
      
     def new_out(self, zmq_sock_out, list = None):
         if(list== None):
             return False
-        socket_in = self._zmq_context.socket(_zmq.PUB)
-        socket_in.bind(zmq_sock_out)
+        print('Zmq_Exchange New Out Init')
+        socket = self._zmq_context.socket(zmq.PUB)
+        socket.connect(zmq_sock_out)
         self.fdmexec.exchange_get_suscribe(list)
-        self._thread_list.append(self._out_tmp)
+        self._thread_list.append(self._out_tmp(socket))
         return True
         
     @in_thread(True)
-    def _in_tmp(self,socket_in):
+    def _in_tmp(self,socket):
         while(self._running):
-            string = socket_in.recv()
+            string = socket.recv_string()
             tmp = string.split('')
             self.fdmexec.exchange_set_value_list(tmp)
             
     @in_thread(True)
-    def _out_tmp(self,socket_out):
+    def _out_tmp(self,socket):
         while(self._running):
-            tmp = self.fdmexec._exchange_get_value_list()
-            socket_out.recv(' '.join(tmp))
+            tmp = self.fdmexec.exchange_get_value_list()
+            socket.send_string(' '.join([str(f) for f in tmp]))

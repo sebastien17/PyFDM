@@ -12,6 +12,7 @@ __pycache__/*
 .*.swp
 pyfdm/*.cpp
 activate.bat
+pyfdm/*.c
 
 
 # Project files
