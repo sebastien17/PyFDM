@@ -69,7 +69,7 @@ extensions = [
 		library_dirs = ['./jsbsim/mgw_build/src'],
 		libraries = ['JSBSim'],
 		),
-        Extension("pyfdm.exchange", ["pyfdm/exchange.py"],language="c++")
+        Extension("pyfdm.exchange", ["pyfdm/exchange.pyx"],language="c++")
 ]
 
 class PyTest(TestCommand):

@@ -1,4 +1,3 @@
-#!/usr/bin/env python
 #	-*- coding: utf-8 -*-
 
 #%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
@@ -21,6 +20,7 @@
 from libcpp cimport bool
 from libcpp.string cimport string
 from libcpp.vector cimport vector
+from cpython.ref cimport PyObject
 
 import os, platform, time
 cdef extern from "cpp/tools.h":
@@ -106,6 +106,8 @@ cdef class FGFDMExec:
     cdef vector[double] _exchange_set_value
     cdef vector[string] _exchange_get_name
     cdef vector[double] _exchange_get_value
+    cdef vector[PyObject*] _get_class_list
+    cdef vector[PyObject*] _set_class_list
     
     def __cinit__(self, **kwargs):
         #	this hides startup message
