@@ -73,7 +73,7 @@ cdef class zmq_exchange(object):
         print(' '.join([str(f) for f in values]))
         self._zmq_socket.send_string(' '.join([str(f) for f in values]))
         return
-    def set(self, vector[float] values):
+    def set(self):
         cdef vector[float] vector_null
         if(self._values.size() == self._param_list.size()):
             return self._values

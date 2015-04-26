@@ -102,10 +102,6 @@ cdef extern from "FGFDMExec.h" namespace "JSBSim":
 cdef class FGFDMExec:
 
     cdef c_FGFDMExec *thisptr      #	hold a C++ instance which we're wrapping
-    cdef vector[string] _exchange_set_name
-    cdef vector[double] _exchange_set_value
-    cdef vector[string] _exchange_get_name
-    cdef vector[double] _exchange_get_value
     cdef vector[PyObject*] _exchange_class_list_set
     cdef vector[PyObject*] _exchange_class_list_get
 
@@ -232,15 +228,33 @@ cdef class FGFDMExec:
         This function executes each scheduled model in succession.
         @param return true if successful, false if sim should be ended
         """
-        if(self._exchange_set_name.empty() == False):
+        cdef int n_exchange
+        cdef int n_param
+        cdef int i,j
+        cdef vector[float] tmp_values
+        cdef vector[string] tmp_names
+        if(self._exchange_class_list_set.empty() == False):
+            n_exchange = self._exchange_class_list_set.size()
+            for i in range(n_exchange):
+                tmp_values = (<object>self._exchange_class_list_set[i]).set()
+                tmp_names = (<object>self._exchange_class_list_set[i]).list()
+                n_param = tmp_names.size()
+                if(tmp_values.size() == n_param):
+                    for j in range(n_param):
+                        self.thisptr.SetPropertyValue(tmp_names[j],tmp_values[j])
             print('Set')
-            self._exchange_set()
         self.thisptr.Run()
-        if(self._exchange_get_name.empty() == False):
+        if(self._exchange_class_list_get.empty() == False):
+            n_exchange = self._exchange_class_list_get.size()
+            for i in range(n_exchange):
+                tmp_names = (<object>self._exchange_class_list_set[i]).list()
+                n_param = tmp_names.size()
+                tmp_values.clear()
+                for j in range(n_param):
+                    tmp_values.push_back(self.thisptr.GetPropertyValue(tmp_names[j]))
+                (<object>self._exchange_class_list_set[i]).get(tmp_values)
             print('Get')
-            self._exchange_get()
-        
-        return 
+        return
 
     def run_ic(self):
         """
