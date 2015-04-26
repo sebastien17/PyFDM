@@ -1,0 +1,39 @@
+    def exchange_set_suscribe(self, list = None):
+        if(list == None):
+            self._exchange_set_name.clear()
+        else:
+            for name in list:
+                #TODO Check if property exists
+                self._exchange_set_name.push_back(name.encode('utf-8'))
+                
+    def exchange_get_suscribe(self, list = None):
+        if(list == None):
+            self._exchange_get_name.clear()
+        else:
+            for name in list:
+                #TODO Check if property exists
+                self._exchange_get_name.push_back(name.encode('utf-8'))
+
+    def exchange_set_value_list(self, vector[double] set_list):
+        if(set_list.size() == self._exchange_set_value.size()):
+            self._exchange_set_value = set_list
+
+    def exchange_get_value_list(self):
+        return self._exchange_get_value
+    
+    def _exchange_set(self):
+        cdef int N
+        if(self._exchange_set_name.empty() == False):
+            if(self._exchange_set_name.size() == self._exchange_set_value.size()):
+                N = self._exchange_set_name.size()
+                for i from 0 <= i < N :
+                    self.thisptr.SetPropertyValue(self._exchange_set_name[i], self._exchange_set_value[i]) 
+
+    def _exchange_get(self):
+        cdef int N
+        if(self._exchange_get_name.empty() == False):
+                N = self._exchange_get_name.size()
+                self._exchange_get_value.clear()
+                for i from 0 <= i < N :
+                    self._exchange_get_value.push_back(self.thisptr.GetPropertyValue(self._exchange_get_name[i])) 
+                    
