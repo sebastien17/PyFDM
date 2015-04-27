@@ -21,72 +21,47 @@ from cpython.ref cimport PyObject
 from libcpp cimport bool, float, int
 from libcpp.string cimport string
 from libcpp.vector cimport vector
-import zmq 
-import threading
-
-#Threading decorator definition
-def in_thread(isDaemon = True):
-    def base_in_thread(fn):
-        '''Decorator to create a threaded function '''
-        def wrapper(*args, **kwargs):
-            t = threading.Thread(target=fn, args=args, kwargs=kwargs)
-            t.setDaemon(isDaemon)
-            t.start()
-            return t
-        return wrapper
-    return base_in_thread
-
+import zmq
+from zmq.eventloop import ioloop, zmqstream
+ioloop.install()
 
 cdef class zmq_exchange(object):
+    cdef object fdm_class
+    
     cdef object _zmq_context
-    cdef object _zmq_socket
-    cdef bool _running
-    cdef bool _direction            #1 = GET 0 = SET
-    cdef PyObject* _get_function
-    cdef PyObject* _set_function
-    cdef vector[string] _param_list
-    cdef vector[float] _values
-    cdef vector[float] _tmp_values
-
-    def __cinit__(self, list, direction ='OUT' , zmq_address ='tcp://localhost:17171'):
-        print('Zmq_Exchange Init')
+    cdef object _stream_sub
+    cdef object _socket_out
+    
+    cdef vector[string] _list_in
+    cdef vector[string] _list_out
+    cdef vector[float] _values_in
+    
+    def __init__(self, list_in,  list_out, zmq_address_in, zmq_address_out):
+        cdef object _socket_in 
         self._zmq_context = zmq.Context()
-        self._running = True
-        self._param_list = [_str.encode('utf-8') for _str in list]
-        if (direction == 'IN'):
-            self._direction = False
-            self._zmq_socket = self._zmq_context.socket(zmq.SUB)
-            self._zmq_socket.connect(zmq_address)
-            self._zmq_socket.setsockopt(zmq.SUBSCRIBE, '')
-            self._set_loop()
-        else:
-            self._direction = True
-            self._zmq_socket = self._zmq_context.socket(zmq.PUB)
-            self._zmq_socket.connect(zmq_address)
-        #All is ready we register into the FDM class
-
-    def direction(self):
-        return self._direction
-    def list(self):
-        return self._param_list
-    def  get(self, vector[float] values):
-        print(' '.join([str(f) for f in values]))
-        self._zmq_socket.send_string(' '.join([str(f) for f in values]))
-        return
+        self._list_in = [_str.encode('utf-8') for _str in list_in]
+        self._list_out = [_str.encode('utf-8') for _str in list_out]
+        if( not self._list_in.empty()):
+            _socket_in = self._zmq_context.socket(zmq.SUB)
+            _socket_in.connect(zmq_address_in.encode('utf-8'))
+            _socket_in.setsockopt_string(zmq.SUBSCRIBE, '')
+            self._stream_sub = zmqstream.ZMQStream(_socket_in)
+            self._stream_sub.on_recv(self._process_message)
+        if( not self._list_out.empty()):
+            self._socket_out = self._zmq_context.socket(zmq.PUB)
+            self._socket_out.connect(zmq_address_out.encode('utf-8'))
+    def register(self, fdm_class):
+        self.fdm_class = fdm_class
+    def list_in(self):
+        return self._list_in
+    def list_out(self):
+        return self._list_out
     def set(self):
-        cdef vector[float] vector_null
-        if(self._values.size() == self._param_list.size()):
-            return self._values
-        else:
-            return vector_null
-    @in_thread()
-    def  _set_loop(self):
-        cdef string _string
-        cdef vector[string] _tmp
-        cdef string _s
-        while(self._running):
-            _string = self._zmq_socket.recv_string()
-            _tmp = _string.split('')
-            self._tmp_values = [float(_s) for _s in _tmp]
-            #Is this one tick ?
-            self._values = self._tmp_values
+        return self._values_in
+    def get(self, vector[float] values):
+        self._socket_out.send_string(' '.join([str(f) for f in values]))
+    def _process_message(self, msg):
+        self._values_in = [float(_str) for _str in msg]
+
+            
+

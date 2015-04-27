@@ -24,7 +24,6 @@ from cpython.ref cimport PyObject
 
 import os, platform, time
 
-
 cdef extern from "cpp/tools.h":
     cdef double getcurrentseconds()
     cdef void sim_nsleep(long)
@@ -104,14 +103,12 @@ cdef extern from "FGFDMExec.h" namespace "JSBSim":
 cdef class FGFDMExec:
 
     cdef c_FGFDMExec *thisptr      #	hold a C++ instance which we're wrapping
-    cdef object _exchange_list
-
+    cdef object _class_list
 
     def __cinit__(self, **kwargs):
         #	this hides startup message
         os.environ["JSBSIM_DEBUG"]=str(0)
         self.thisptr = new c_FGFDMExec(0,0)
-        
 
     def __init__(self, root_dir=None):
         if (root_dir is None):
@@ -121,22 +118,38 @@ cdef class FGFDMExec:
                 raise IOError("Can't find root directory: {0}".format(root_dir))
             else:
                 self.set_root_dir(root_dir)
+        self._class_list = []
+        
         
     #Exchange Logics
 
     #Registering exchange class
     def exchange_register(self, _exchange_class):
-        pass
-    def list_exchange_class(self,bool direction):
-        pass
+        self._class_list.append(_exchange_class)
+        _exchange_class.register(self)
+    def list_exchange_class(self):
+        for _ex_class in self._class_list:
+            print(_ex_class)
     def _exchange_set(self):
-        pass
+        cdef vector[float] _tmp_values
+        cdef vector[string] _tmp_names
+        cdef int i, N
+        for _ex_class in self._class_list:
+            _tmp_values = _ex_class.set()
+            _tmp_names = _ex_class.list_in()
+            N = _tmp_names.size()
+            for i in range(N):
+                self.thisptr.SetPropertyValue(_tmp_names[i], _tmp_values[i])
     def _exchange_get(self):
-        pass
-
-
-
-
+        cdef vector[float] _tmp_values
+        cdef vector[string] _tmp_names
+        cdef int i, N
+        for _ex_class in self._class_list:
+            _tmp_names = _ex_class.list_out()
+            N = _tmp_names.size()
+            for i in range(N):
+                _tmp_values.push_back(self.thisptr.GetPropertyValue(_tmp_names[i]))
+            _ex_class.get(_tmp_values)
 
     #Simulate Mode
     def simulate(self, record_properties=[], t_final=1, dt=1.0/60, verbose=False):
@@ -220,8 +233,11 @@ cdef class FGFDMExec:
         This function executes each scheduled model in succession.
         @param return true if successful, false if sim should be ended
         """
-        self.thisptr.Run()
-
+        cdef bool result
+        #self._exchange_set()
+        result = self.thisptr.Run()
+        self._exchange_get()
+        return result
 
     def run_ic(self):
         """

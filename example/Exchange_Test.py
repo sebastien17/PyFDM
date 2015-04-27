@@ -5,8 +5,6 @@
 
 import os
 from pyfdm import fdmexec
-from pyfdm.exchange import zmq_exchange
-
 
 # In[2]:
 
@@ -26,27 +24,6 @@ fdm.set_property_value("ic/h-agl-ft",1000)
 fdm.set_property_value("ic/vc-kts",80)
 fdm.set_property_value("ic/gamma-deg",0)
 fdm.do_trim(1)
-
-
-# In[3]:
-
-zmq_tool = zmq_exchange(['position/h-sl-meters'],direction ='OUT' , zmq_address ='tcp://localhost:17171')
-
-
-# In[4]:
-
-fdm.exchange_register(zmq_tool)
-
-
-# In[6]:
-
-fdm.list_exchange_class(True)
-
-
-# In[7]:
-
-fdm.list_exchange_class(False)
-
 
 # In[ ]:
 
