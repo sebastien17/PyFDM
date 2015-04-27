@@ -23,6 +23,8 @@ from libcpp.vector cimport vector
 from cpython.ref cimport PyObject
 
 import os, platform, time
+
+
 cdef extern from "cpp/tools.h":
     cdef double getcurrentseconds()
     cdef void sim_nsleep(long)
@@ -102,8 +104,8 @@ cdef extern from "FGFDMExec.h" namespace "JSBSim":
 cdef class FGFDMExec:
 
     cdef c_FGFDMExec *thisptr      #	hold a C++ instance which we're wrapping
-    cdef vector[PyObject*] _exchange_class_list_set
-    cdef vector[PyObject*] _exchange_class_list_get
+    cdef object _exchange_list
+
 
     def __cinit__(self, **kwargs):
         #	this hides startup message
@@ -124,21 +126,11 @@ cdef class FGFDMExec:
 
     #Registering exchange class
     def exchange_register(self, _exchange_class):
-        if(_exchange_class.direction() == True):
-            self._exchange_class_list_get.push_back(<PyObject*>_exchange_class)
-        else:
-            self._exchange_class_list_set.push_back(<PyObject*>_exchange_class)
-        return
+        pass
     def list_exchange_class(self,bool direction):
-        if(direction == True):
-            return self._exchange_class_list_get.size()
-        else:
-            return self._exchange_class_list_set.size()
+        pass
     def _exchange_set(self):
-        cdef int i
-        cdef int N = self._exchange_class_list_set.size()
-     #   for i from 0 <= i < N :
-    #        <object>(self._exchange_class_list[i])._set()
+        pass
     def _exchange_get(self):
         pass
 
@@ -228,33 +220,8 @@ cdef class FGFDMExec:
         This function executes each scheduled model in succession.
         @param return true if successful, false if sim should be ended
         """
-        cdef int n_exchange
-        cdef int n_param
-        cdef int i,j
-        cdef vector[float] tmp_values
-        cdef vector[string] tmp_names
-        if(self._exchange_class_list_set.empty() == False):
-            n_exchange = self._exchange_class_list_set.size()
-            for i in range(n_exchange):
-                tmp_values = (<object>self._exchange_class_list_set[i]).set()
-                tmp_names = (<object>self._exchange_class_list_set[i]).list()
-                n_param = tmp_names.size()
-                if(tmp_values.size() == n_param):
-                    for j in range(n_param):
-                        self.thisptr.SetPropertyValue(tmp_names[j],tmp_values[j])
-            print('Set')
         self.thisptr.Run()
-        if(self._exchange_class_list_get.empty() == False):
-            n_exchange = self._exchange_class_list_get.size()
-            for i in range(n_exchange):
-                tmp_names = (<object>self._exchange_class_list_set[i]).list()
-                n_param = tmp_names.size()
-                tmp_values.clear()
-                for j in range(n_param):
-                    tmp_values.push_back(self.thisptr.GetPropertyValue(tmp_names[j]))
-                (<object>self._exchange_class_list_set[i]).get(tmp_values)
-            print('Get')
-        return
+
 
     def run_ic(self):
         """

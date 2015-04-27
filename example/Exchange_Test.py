@@ -10,7 +10,6 @@ from pyfdm.exchange import zmq_exchange
 
 # In[2]:
 
-
 JSBSIM_ROOT = os.path.abspath('data/jsbsim_data') + os.sep
 
 
@@ -31,20 +30,29 @@ fdm.do_trim(1)
 
 # In[3]:
 
-zmq_tool = zmq_exchange(fdm)
+zmq_tool = zmq_exchange(['position/h-sl-meters'],direction ='OUT' , zmq_address ='tcp://localhost:17171')
 
 
 # In[4]:
 
-zmq_tool.new_out('tcp://127.0.0.1:23123', ['position/h-sl-meters','position/lat-gc-deg','position/long-gc-deg','position/terrain-elevation-asl-ft'])
+fdm.exchange_register(zmq_tool)
 
 
-# In[5]:
+# In[6]:
 
-fdm.realtime(max_time = 5.0, verbose = False)
+fdm.list_exchange_class(True)
+
+
+# In[7]:
+
+fdm.list_exchange_class(False)
 
 
 # In[ ]:
 
+fdm.run()
+
+
+# In[ ]:
 
 
