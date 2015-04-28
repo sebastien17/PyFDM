@@ -136,10 +136,11 @@ cdef class FGFDMExec:
         cdef int i, N
         for _ex_class in self._class_list:
             _tmp_values = _ex_class.set()
-            _tmp_names = _ex_class.list_in()
-            N = _tmp_names.size()
-            for i in range(N):
-                self.thisptr.SetPropertyValue(_tmp_names[i], _tmp_values[i])
+            if(not _tmp_values.empty()):
+                _tmp_names = _ex_class.list_in()
+                N = _tmp_names.size()
+                for i in range(N):
+                    self.thisptr.SetPropertyValue(_tmp_names[i], _tmp_values[i])
     def _exchange_get(self):
         cdef vector[float] _tmp_values
         cdef vector[string] _tmp_names
@@ -171,7 +172,7 @@ cdef class FGFDMExec:
         return (t,y)
 
     #Realtime Mode
-    def realtime(self, dt=1.0/100, double max_time = 0.0, verbose = False):
+    def realtime(self, dt=1.0/100, double max_time = 0.0):
         self.set_dt(dt)
         self.run_ic()
         cdef long sleep_nseconds = (long)(dt*1e9)
@@ -234,7 +235,7 @@ cdef class FGFDMExec:
         @param return true if successful, false if sim should be ended
         """
         cdef bool result
-        #self._exchange_set()
+        self._exchange_set()
         result = self.thisptr.Run()
         self._exchange_get()
         return result

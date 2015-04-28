@@ -27,26 +27,22 @@ ioloop.install()
 
 cdef class zmq_exchange(object):
     cdef object fdm_class
-    
     cdef object _zmq_context
-    cdef object _stream_sub
     cdef object _socket_out
-    
+    cdef object _socket_in
     cdef vector[string] _list_in
     cdef vector[string] _list_out
-    cdef vector[float] _values_in
     
     def __init__(self, list_in,  list_out, zmq_address_in, zmq_address_out):
-        cdef object _socket_in 
+ 
         self._zmq_context = zmq.Context()
         self._list_in = [_str.encode('utf-8') for _str in list_in]
         self._list_out = [_str.encode('utf-8') for _str in list_out]
         if( not self._list_in.empty()):
-            _socket_in = self._zmq_context.socket(zmq.SUB)
-            _socket_in.connect(zmq_address_in.encode('utf-8'))
-            _socket_in.setsockopt_string(zmq.SUBSCRIBE, '')
-            self._stream_sub = zmqstream.ZMQStream(_socket_in)
-            self._stream_sub.on_recv(self._process_message)
+            self._socket_in = self._zmq_context.socket(zmq.SUB)
+            self._socket_in.setsockopt(zmq.CONFLATE, 1)             #Has to be set up before bind/connect
+            self._socket_in.connect(zmq_address_in.encode('utf-8'))
+            self._socket_in.setsockopt_string(zmq.SUBSCRIBE, '')
         if( not self._list_out.empty()):
             self._socket_out = self._zmq_context.socket(zmq.PUB)
             self._socket_out.connect(zmq_address_out.encode('utf-8'))
@@ -57,11 +53,18 @@ cdef class zmq_exchange(object):
     def list_out(self):
         return self._list_out
     def set(self):
-        return self._values_in
+        cdef vector[float] _tmp_values
+        try:
+            _data = self._socket_in.recv(flags=zmq.NOBLOCK).decode('utf-8')
+        except Exception as inst:
+           _tmp_values = []
+        else:
+            _tmp_values = [float(_str) for _str in _data.split(' ')]
+            if(_tmp_values.size() != self._list_in.size()):
+                _tmp_values = []
+        finally:
+            return _tmp_values
     def get(self, vector[float] values):
         self._socket_out.send_string(' '.join([str(f) for f in values]))
-    def _process_message(self, msg):
-        self._values_in = [float(_str) for _str in msg]
 
             
-
