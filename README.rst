@@ -2,7 +2,10 @@
 PyFDM
 =====
 
-Python Wrapper for JSBsim
+Python Wrapper for JSBsim with:
+
+* ZMQ based exchange class for I/O
+* Realtime capacities
 
 Original Code from : `pyjsbsim <https://github.com/arktools/pyjsbsim>`
 
