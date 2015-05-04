@@ -529,7 +529,7 @@ def setup_package():
 		tests_require=['pytest-cov', 'pytest'],
 		include_package_data=True,
 		package_data={package: metadata['package_data']},
-		data_files=[('.', metadata['data_files'])],
+		data_files=DATA_FILES,
 		command_options=command_options,
 		entry_points={'console_scripts': console_scripts},
 		zip_safe=False,  # do not zip egg file after setup.py install
@@ -537,4 +537,5 @@ def setup_package():
 		)
 
 if __name__ == "__main__":
+    DATA_FILES = [(sys.exec_prefix, ['jsbsim/mgw_build/src/libJSBSim.dll']), '*.rst', '*.txt']
     setup_package()
