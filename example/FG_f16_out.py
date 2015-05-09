@@ -18,4 +18,4 @@ fdm.set_property_value("ic/vc-kts",400)
 fdm.set_property_value("ic/gamma-deg",0)
 fdm.do_trim(0)
 
-fdm.realtime(max_time = 60.0, verbose = False)
+fdm.realtime(max_time = 60.0)

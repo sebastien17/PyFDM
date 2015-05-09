@@ -537,5 +537,5 @@ def setup_package():
 		)
 
 if __name__ == "__main__":
-    DATA_FILES = [(sys.exec_prefix, ['jsbsim/mgw_build/src/libJSBSim.dll']), '*.rst', '*.txt']
+    DATA_FILES = [('Scripts', ['jsbsim/mgw_build/src/libJSBSim.dll'])]
     setup_package()
