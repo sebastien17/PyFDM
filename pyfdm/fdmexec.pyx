@@ -104,6 +104,7 @@ cdef class FGFDMExec:
 
     cdef c_FGFDMExec *thisptr      #	hold a C++ instance which we're wrapping
     cdef object _class_list
+    cdef bool _stop_realtime
 
     def __cinit__(self, **kwargs):
         #	this hides startup message
@@ -119,6 +120,7 @@ cdef class FGFDMExec:
             else:
                 self.set_root_dir(root_dir)
         self._class_list = []
+        self._stop_realtime = False
         
         
     #Exchange Logics
@@ -178,16 +180,20 @@ cdef class FGFDMExec:
         cdef long sleep_nseconds = (long)(dt*1e9)
         cdef double initial_irl_time  = getcurrentseconds()      #	In second precise to microsecond
         if(max_time == 0.0):
-            while(True): 
+            while(not self._stop_realtime): 
                 while(self.thisptr.GetSimTime() < (getcurrentseconds() - initial_irl_time)):
                     self.run()
                 sim_nsleep(sleep_nseconds)
         else:
-            while(self.thisptr.GetSimTime() < max_time): 
+            while(self.thisptr.GetSimTime() < max_time and not self._stop_realtime): 
                 while(self.thisptr.GetSimTime() < (getcurrentseconds() - initial_irl_time)):
                     self.run()
                 sim_nsleep(sleep_nseconds)
+        self._stop_realtime = False
         print('Total time {0}'.format(getcurrentseconds() - initial_irl_time))
+    
+    def stop_realtime(self):
+        self._stop_realtime = True
         
     def find_root_dir(self, search_paths=[], verbose=False):
         root_dir = None
