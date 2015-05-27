@@ -22,8 +22,6 @@ from libcpp cimport bool, float, int
 from libcpp.string cimport string
 from libcpp.vector cimport vector
 import zmq
-from zmq.eventloop import ioloop, zmqstream
-ioloop.install()
 
 cdef class zmq_exchange(object):
     cdef object fdm_class
