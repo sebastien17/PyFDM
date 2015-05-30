@@ -3,7 +3,7 @@
 """
     Setup file for pyfdm.
 
-    This file was generated with PyScaffold 2.0.2, a tool that easily
+    This file was generated with PyScaffold 2.1, a tool that easily
     puts up a scaffold for your new Python project. Learn more under:
     http://pyscaffold.readthedocs.org/
 """
@@ -38,7 +38,7 @@ __location__ = os.path.join(os.getcwd(), os.path.dirname(
     inspect.getfile(inspect.currentframe())))
 
 # general settings
-pyscaffold_version = "2.0.2"
+pyscaffold_version = "2.1"
 package = "pyfdm"
 namespace = []
 root_pkg = namespace[0] if namespace else package
@@ -47,7 +47,6 @@ if namespace:
 else:
     pkg_path = package
 
-	
 # Version configuration
 versionfile_path = os.path.join(pkg_path, '_version.py')
 tag_prefix = 'v'  # tags are like v1.2.0
@@ -62,80 +61,25 @@ version_full = '{full}'
 def get_versions(default=dict(), verbose=False):
     return dict(version=version_version, full=version_full)
 """
+
+###########################################
+#      Cython Extension Configuration     #
+###########################################
+
 extensions = [
     Extension("pyfdm.fdmexec", ["pyfdm/fdmexec.pyx", "pyfdm/cpp/tools.cpp"],
-        include_dirs = ['./jsbsim/src/'],
+        include_dirs = ['./vendors/jsbsim/src/'],
         language="c++",
-		library_dirs = ['./jsbsim/mgw_build/src'],
+		library_dirs = ['./vendors/jsbsim/mgw_build/src'],
 		libraries = ['JSBSim'],
 		),
         Extension("pyfdm.exchange", ["pyfdm/exchange.pyx"],language="c++")
 ]
 
-class PyTest(TestCommand):
-    user_options = [("cov=", None, "Run coverage"),
-                    ("cov-report=", None, "Generate a coverage report"),
-                    ("junitxml=", None, "Generate xml of test results")]
 
-    def initialize_options(self):
-        TestCommand.initialize_options(self)
-        self.cov = None
-        self.cov_report = None
-        self.junitxml = None
-
-    def finalize_options(self):
-        TestCommand.finalize_options(self)
-        if self.cov:
-            self.cov = ["--cov", self.cov, "--cov-report", "term-missing"]
-            if self.cov_report:
-                self.cov.extend(["--cov-report", self.cov_report])
-        if self.junitxml:
-            self.junitxml = ["--junitxml", self.junitxml]
-
-    def run_tests(self):
-        try:
-            import pytest
-        except:
-            raise RuntimeError("py.test is not installed, "
-                               "run: pip install pytest")
-        params = {"args": self.test_args}
-        if self.cov:
-            params["args"] += self.cov
-            params["plugins"] = ["cov"]
-        if self.junitxml:
-            params["args"] += self.junitxml
-        errno = pytest.main(**params)
-        sys.exit(errno)
-
-
-def sphinx_builder():
-    try:
-        from sphinx.setup_command import BuildDoc
-    except ImportError:
-        class NoSphinx(Command):
-            user_options = []
-
-            def initialize_options(self):
-                raise RuntimeError("Sphinx documentation is not installed, "
-                                   "run: pip install sphinx")
-
-        return NoSphinx
-
-    class BuildSphinxDocs(BuildDoc):
-
-        def run(self):
-            if self.builder == "doctest":
-                import sphinx.ext.doctest as doctest
-                # Capture the DocTestBuilder class in order to return the total
-                # number of failures when exiting
-                ref = capture_objs(doctest.DocTestBuilder)
-                BuildDoc.run(self)
-                errno = ref[-1].total_failures
-                sys.exit(errno)
-            else:
-                BuildDoc.run(self)
-
-    return BuildSphinxDocs
+###################################
+# Some helper functions and tools #
+###################################
 
 
 class ObjKeeper(type):
@@ -161,7 +105,8 @@ def capture_objs(cls):
 
 
 def get_install_requirements(path):
-    content = open(os.path.join(__location__, path)).read()
+    with open(os.path.join(__location__, path)) as fh:
+        content = fh.read()
     return [req for req in content.splitlines() if req != '']
 
 
@@ -174,35 +119,6 @@ def read(fname):
     return content
 
 
-def str2bool(val):
-    return val.lower() in ("yes", "true")
-
-
-def read_setup_cfg():
-    config = configparser.SafeConfigParser(allow_no_value=True)
-    config_file = StringIO(read(os.path.join(__location__, 'setup.cfg')))
-    config.readfp(config_file)
-    metadata = dict(config.items('metadata'))
-    classifiers = metadata.get('classifiers', '')
-    metadata['classifiers'] = [item.strip() for item in classifiers.split(',')]
-    console_scripts = dict(config.items('console_scripts'))
-    console_scripts = prepare_console_scripts(console_scripts)
-    include_package_data_bool = metadata.get('include_package_data', 'false')
-    metadata['include_package_data'] = str2bool(include_package_data_bool)
-    package_data = metadata.get('package_data', '')
-    package_data = [item.strip() for item in package_data.split(',') if item]
-    metadata['package_data'] = package_data
-    data_files = metadata.get('data_files', '')
-    data_files = [item.strip() for item in data_files.split(',')]
-    data_files = [item for pattern in data_files for item in glob(pattern)]
-    metadata['data_files'] = data_files
-    return metadata, console_scripts
-
-
-def prepare_console_scripts(dct):
-    return ['{cmd} = {func}'.format(cmd=k, func=v) for k, v in dct.items()]
-
-
 @contextmanager
 def stash(filename):
     with open(filename) as fh:
@@ -212,6 +128,55 @@ def stash(filename):
     finally:
         with open(filename, 'w') as fh:
             fh.write(old_content)
+
+
+def str2bool(val):
+    return val.lower() in ("yes", "true")
+
+
+def get_items(parser, section):
+    try:
+        items = parser.items(section)
+    except configparser.NoSectionError:
+        return []
+    return items
+
+
+def prepare_console_scripts(dct):
+    return ['{cmd} = {func}'.format(cmd=k, func=v) for k, v in dct.items()]
+
+
+def prepare_extras_require(dct):
+    return {k: [r.strip() for r in v.split(',')] for k, v in dct.items()}
+
+
+def prepare_data_files(dct):
+    return [(k, [f for p in v.split(',') for f in glob(p.strip())])
+            for k, v in dct.items()]
+
+
+def read_setup_cfg():
+    config = configparser.SafeConfigParser(allow_no_value=True)
+    config_file = StringIO(read(os.path.join(__location__, 'setup.cfg')))
+    config.readfp(config_file)
+    metadata = dict(config.items('metadata'))
+    classifiers = metadata.get('classifiers', '')
+    metadata['classifiers'] = [item.strip() for item in classifiers.split(',')]
+    console_scripts = dict(get_items(config, 'console_scripts'))
+    console_scripts = prepare_console_scripts(console_scripts)
+    extras_require = dict(get_items(config, 'extras_require'))
+    extras_require = prepare_extras_require(extras_require)
+    data_files = dict(get_items(config, 'data_files'))
+    data_files = prepare_data_files(data_files)
+    package_data = metadata.get('package_data', '')
+    package_data = [item.strip() for item in package_data.split(',') if item]
+    metadata['package_data'] = package_data
+    return metadata, console_scripts, extras_require, data_files
+
+
+###########################################
+# Package versioning  and git interaction #
+###########################################
 
 
 class ShellCommand(object):
@@ -264,6 +229,17 @@ def version_from_git(tag_prefix, root, verbose=False):
         if verbose:
             print("no git found")
         return None
+    # Check if we have a valid tag in the current git repository
+    try:
+        next(git("show-ref", "--tags"))
+    except subprocess.CalledProcessError as e:
+        if e.returncode == 1:
+            # git-show-ref returns with exit code 1 in the case of no commit.
+            # In the case of any other error this is != 1, mostly 128.
+            print("Empty repository, please make an initial commit.")
+            return None
+        else:
+            raise
     tag = next(git("describe", "--tags", "--dirty", "--always"))
     if not tag.startswith(tag_prefix):
         if verbose:
@@ -412,6 +388,75 @@ def get_versions(verbose=False):
     ver['version'] = git2pep440(ver['version'])
     return ver
 
+###################################
+# Definition of setup.py commands #
+###################################
+
+
+def build_cmd_docs():
+    try:
+        from sphinx.setup_command import BuildDoc
+    except ImportError:
+        class NoSphinx(Command):
+            user_options = []
+
+            def initialize_options(self):
+                raise RuntimeError("Sphinx documentation is not installed, "
+                                   "run: pip install sphinx")
+
+        return NoSphinx
+
+    class cmd_docs(BuildDoc):
+        def run(self):
+            if self.builder == "doctest":
+                import sphinx.ext.doctest as doctest
+                # Capture the DocTestBuilder class in order to return the total
+                # number of failures when exiting
+                ref = capture_objs(doctest.DocTestBuilder)
+                BuildDoc.run(self)
+                errno = ref[-1].total_failures
+                sys.exit(errno)
+            else:
+                BuildDoc.run(self)
+
+    return cmd_docs
+
+
+class cmd_test(TestCommand):
+    user_options = [("cov=", None, "Run coverage"),
+                    ("cov-report=", None, "Generate a coverage report"),
+                    ("junitxml=", None, "Generate xml of test results")]
+
+    def initialize_options(self):
+        TestCommand.initialize_options(self)
+        self.cov = None
+        self.cov_report = None
+        self.junitxml = None
+
+    def finalize_options(self):
+        TestCommand.finalize_options(self)
+        if self.cov:
+            self.cov = ["--cov", self.cov, "--cov-report", "term-missing"]
+            if self.cov_report:
+                self.cov.extend(["--cov-report", self.cov_report])
+        if self.junitxml:
+            self.junitxml = ["--junitxml", self.junitxml]
+
+    def run_tests(self):
+        try:
+            import pytest
+        except:
+            raise RuntimeError("py.test is not installed, "
+                               "run: pip install pytest")
+        params = {"args": self.test_args}
+        if self.cov:
+            params["args"] += self.cov
+            params["plugins"] = ["cov"]
+        if self.junitxml:
+            params["args"] += self.junitxml
+        errno = pytest.main(**params)
+        sys.exit(errno)
+
 
 class cmd_version(Command):
     description = "report generated version string"
@@ -474,12 +519,16 @@ class cmd_sdist(_sdist):
         with open(target_versionfile, "w") as fh:
             fh.write(short_version_py.format(**self._generated_versions))
 
+###########################################
+# Assemble everything and call setup(...) #
+###########################################
+
 
 def setup_package():
     # Assemble additional setup commands
-    cmdclass = dict(docs=sphinx_builder(),
-                    doctest=sphinx_builder(),
-                    test=PyTest,
+    cmdclass = dict(docs=build_cmd_docs(),
+                    doctest=build_cmd_docs(),
+                    test=cmd_test,
                     version=cmd_version,
                     sdist=cmd_sdist,
                     build=cmd_build)
@@ -492,7 +541,7 @@ def setup_package():
     docs_path = os.path.join(__location__, "docs")
     docs_build_path = os.path.join(docs_path, "_build")
     install_reqs = get_install_requirements("requirements.txt")
-    metadata, console_scripts = read_setup_cfg()
+    metadata, console_scripts, extras_require, data_files = read_setup_cfg()
 
     command_options = {
         'docs': {'project': ('setup.py', package),
@@ -512,30 +561,28 @@ def setup_package():
                  'cov': ('setup.py', root_pkg)}}
 
     setup(name=package,
-		version=version,
-		url=metadata['url'],
-		description=metadata['description'],
-		author=metadata['author'],
-		author_email=metadata['author_email'],
-		license=metadata['license'],
-		long_description=read('README.rst'),
-		classifiers=metadata['classifiers'],
-		test_suite='tests',
-		packages=setuptools.find_packages(exclude=['tests', 'tests.*']),
-		namespace_packages=namespace,
-		install_requires=install_reqs,
-		setup_requires=['six'],
-		cmdclass=cmdclass,
-		tests_require=['pytest-cov', 'pytest'],
-		include_package_data=True,
-		package_data={package: metadata['package_data']},
-		data_files=DATA_FILES,
-		command_options=command_options,
-		entry_points={'console_scripts': console_scripts},
-		zip_safe=False,  # do not zip egg file after setup.py install
-		ext_modules=cythonize(extensions)
-		)
-
+          version=version,
+          url=metadata['url'],
+          description=metadata['description'],
+          author=metadata['author'],
+          author_email=metadata['author_email'],
+          license=metadata['license'],
+          long_description=read('README.rst'),
+          classifiers=metadata['classifiers'],
+          test_suite='tests',
+          packages=setuptools.find_packages(exclude=['tests', 'tests.*']),
+          namespace_packages=namespace,
+          install_requires=install_reqs,
+          setup_requires=['six'],
+          extras_require=extras_require,
+          cmdclass=cmdclass,
+          tests_require=['pytest-cov', 'pytest'],
+          package_data={package: metadata['package_data']},
+          data_files=data_files,
+          command_options=command_options,
+          entry_points={'console_scripts': console_scripts},
+          zip_safe=False,  # do not zip egg file after setup.py install
+          ext_modules=cythonize(extensions)
+         )
 if __name__ == "__main__":
-    DATA_FILES = [('Scripts', ['jsbsim/mgw_build/src/libJSBSim.dll'])]
     setup_package()

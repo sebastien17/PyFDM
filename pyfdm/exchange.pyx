@@ -40,7 +40,7 @@ cdef class zmq_exchange(object):
             self._socket_in = self._zmq_context.socket(zmq.SUB)
             self._socket_in.setsockopt(zmq.CONFLATE, 1)             #Has to be set up before bind/connect
             self._socket_in.connect(zmq_address_in.encode('utf-8'))
-            self._socket_in.setsockopt_string(zmq.SUBSCRIBE, '')
+            self._socket_in.setsockopt_string(zmq.SUBSCRIBE, u'')
         if( not self._list_out.empty()):
             self._socket_out = self._zmq_context.socket(zmq.PUB)
             self._socket_out.connect(zmq_address_out.encode('utf-8'))
