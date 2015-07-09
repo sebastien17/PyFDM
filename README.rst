@@ -60,7 +60,7 @@ How to use it
 	#Trim
 	fdm.do_trim(1)
 	
-	#Defining parameters
+	#Defining parameters for external exchange
 	_IN = ['fcs/aileron-cmd-norm',
 	'fcs/elevator-cmd-norm',
 	'fcs/rudder-cmd-norm',
