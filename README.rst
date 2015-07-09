@@ -8,6 +8,7 @@ Python Wrapper for JSBsim with:
 * Realtime capacities
 
 Original Code from : `pyjsbsim <https://github.com/arktools/pyjsbsim>`
+JSBSim Flight Dynamics Model code from : `http://sourceforge.net/projects/jsbsim/ <http://sourceforge.net/projects/jsbsim/>`
 
 How to compile jsbsim (MinGW)
 -----------------------------
