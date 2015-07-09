@@ -11,6 +11,11 @@ Original Code from : `pyjsbsim <https://github.com/arktools/pyjsbsim>`
 
 JSBSim Flight Dynamics Model code from : `Sourceforge <http://sourceforge.net/projects/jsbsim/>`
 
+How to install
+--------------
+
+TODO
+
 How to compile jsbsim (MinGW)
 -----------------------------
 
