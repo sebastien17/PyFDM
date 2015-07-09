@@ -7,9 +7,9 @@ Python Wrapper for JSBsim with:
 * ZMQ based exchange class for I/O
 * Realtime capacities
 
-Original Code from : pyjsbsim https://github.com/arktools/pyjsbsim
+Original Code from pyjsbsim : https://github.com/arktools/pyjsbsim
 
-JSBSim Flight Dynamics Model code from : Sourceforge http://sourceforge.net/projects/jsbsim/
+JSBSim Flight Dynamics Model code from Sourceforge : http://sourceforge.net/projects/jsbsim/
 
 How to install
 --------------
