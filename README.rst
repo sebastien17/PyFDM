@@ -82,10 +82,10 @@ How to use it
 	#Defining zmq exchange parameters
 	zmq_tool = zmq_exchange(_IN,_OUT ,'tcp://127.0.0.1:17171','tcp://localhost:17172' )
 	
-	#Registering exchange class to FGFDMExec class
+	#Registering exchange instance to FGFDMExec instance
 	fdm.exchange_register(zmq_tool)
 	
-	#List of exchange class registered
+	#List of exchange instance registered
 	fdm.list_exchange_class()
 	
 	#Running FDM loop
