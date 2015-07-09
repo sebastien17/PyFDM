@@ -13,7 +13,6 @@ __pycache__/*
 pyfdm/*.cpp
 pyfdm/*.c
 activate.bat
-vendors
 
 # Project files
 .ropeproject
