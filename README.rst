@@ -20,6 +20,7 @@ How to compile jsbsim (MinGW)
 -----------------------------
 
 CMake for Windows : http://www.cmake.org/cmake/resources/software.html
+MinGW : http://www.mingw.org/
 
 .. code-block:: bash
 
