@@ -586,3 +586,4 @@ def setup_package():
          )
 if __name__ == "__main__":
     setup_package()
+    ''' s_dist command : python setup.py sdist --no-defaults'''
