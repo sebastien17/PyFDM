@@ -80,7 +80,7 @@ bool FGUDPInputSocket::Load(Element* el)
     return false;
    
   rate = atoi(el->GetAttributeValue("rate").c_str());
-  FGModel::SetRate(0.5 + 1.0/(FDMExec->GetDeltaT()*rate));
+  SetRate(0.5 + 1.0/(FDMExec->GetDeltaT()*rate));
    
   SockPort = atoi(el->GetAttributeValue("port").c_str());
   if (SockPort == 0) {
@@ -129,6 +129,7 @@ void FGUDPInputSocket::Read(bool Holding)
   if (socket == 0) return;
     
   data = socket->Receive();
+ 
   if (data.size() > 0) {
   
     vector<string> tokens;
@@ -149,7 +150,7 @@ void FGUDPInputSocket::Read(bool Holding)
     } else {
       oldTimeStamp = values[0];
     }
-    
+     
     // the zeroeth value is the time stamp 
     if ((values.size() - 1) != InputProperties.size()) {
       cerr << endl << "Mismatch between UDP input property and value counts." << endl;

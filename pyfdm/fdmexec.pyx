@@ -1,26 +1,6 @@
-#	-*- coding: utf-8 -*-
-
-#%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
-#	This file is part of PyFDM.
-
-#	PyFDM is free software: you can redistribute it and/or modify
-#	it under the terms of the GNU General Public License as published by
-#	the Free Software Foundation, either version 3 of the License, or
-#	(at your option) any later version.
-
-#	PyFDM is distributed in the hope that it will be useful,
-#	but WITHOUT ANY WARRANTY; without even the implied warranty of
-#	MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
-#	GNU General Public License for more details.
-
-#	You should have received a copy of the GNU General Public License
-#	along with PyFDM.  If not, see <http://www.gnu.org/licenses/>.
-#	%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
-
 from libcpp cimport bool
 from libcpp.string cimport string
 from libcpp.vector cimport vector
-from cpython.ref cimport PyObject
 
 import os, platform, time
 
@@ -28,23 +8,23 @@ cdef extern from "cpp/tools.h":
     cdef double getcurrentseconds()
     cdef void sim_nsleep(long)
 
-cdef extern from "input_output/FGPropertyManager.h" namespace "JSBSim":
-    cdef cppclass c_FGPropertyManager "JSBSim::FGPropertyManager":
-        c_FGPropertyManager()
-        void Tie(string name, float *pointer, bool useDefault=True)
-
 cdef extern from "models/FGPropulsion.h" namespace "JSBSim":
     cdef cppclass c_FGPropulsion "JSBSim::FGPropulsion":
         c_FGPropulsion(c_FGFDMExec* fdm)
         void InitRunning(int n)
         int GetNumEngines()
 
+cdef extern from "initialization/FGInitialCondition.h" namespace "JSBSim":
+    cdef cppclass c_FGInitialCondition "JSBSim::FGInitialCondition":
+        c_FGInitialCondition(c_FGFDMExec* fdm)
+        bool Load(string rstfile, bool useStoredPath)
+        
 cdef extern from "FGFDMExec.h" namespace "JSBSim":
     cdef cppclass c_FGFDMExec "JSBSim::FGFDMExec":
         c_FGFDMExec(int root, int fdmctr)
         void Unbind()
-        bool Run()
-        bool RunIC()
+        bool Run() except +
+        bool RunIC() except +
         bool LoadModel(string model,
                        bool add_model_to_path)
         bool LoadModel(string aircraft_path,
@@ -52,11 +32,11 @@ cdef extern from "FGFDMExec.h" namespace "JSBSim":
                        string systems_path,
                        string model,
                        bool add_model_to_path)
-        bool LoadScript(string script, double delta_t, string initfile)
+        bool LoadScript(string script, double delta_t, string initfile) except +
         bool SetEnginePath(string path)
         bool SetAircraftPath(string path)
         bool SetSystemsPath(string path)
-        void SetRootDir(string path) 
+        void SetRootDir(string path)
         string GetEnginePath()
         string GetAircraftPath()
         string GetSystemsPath()
@@ -65,10 +45,10 @@ cdef extern from "FGFDMExec.h" namespace "JSBSim":
         double GetPropertyValue(string property)
         void SetPropertyValue(string property, double value)
         string GetModelName()
-        bool SetOutputDirectives(string fname)
+        bool SetOutputDirectives(string fname) except +
         #void ForceOutput(int idx=0)
         void SetLoggingRate(double rate)
-        bool SetOutputFileName(string fname)
+        bool SetOutputFileName(int n, string fname)
         string GetOutputFileName(int n)
         void DoTrim(int mode) except +
         void DoSimplexTrim(int mode) except +
@@ -87,38 +67,39 @@ cdef extern from "FGFDMExec.h" namespace "JSBSim":
         void SetTrimStatus(bool status)
         bool GetTrimStatus()
         string GetPropulsionTankReport()
-        double GetSimTime() 
+        double GetSimTime()
         double GetDeltaT()
         void SuspendIntegration()
         void ResumeIntegration()
         bool IntegrationSuspended()
         bool Setsim_time(double cur_time)
         void Setdt(double delta_t)
-        double IncrTime() 
-        int GetDebugLevel()   
+        double IncrTime()
+        int GetDebugLevel()
         c_FGPropulsion* GetPropulsion()
-        c_FGPropertyManager* GetPropertyManager()
+        c_FGInitialCondition* GetIC()
 
-#	this is the python wrapper class
+# this is the python wrapper class
 cdef class FGFDMExec:
 
-    cdef c_FGFDMExec *thisptr      #	hold a C++ instance which we're wrapping
+    cdef c_FGFDMExec *thisptr      # hold a C++ instance which we're wrapping
     cdef object _class_list
     cdef bool _stop_realtime
-
+    
     def __cinit__(self, **kwargs):
-        #	this hides startup message
-        os.environ["JSBSIM_DEBUG"]=str(0)
+        # this hides startup message
+        # os.environ["JSBSIM_DEBUG"]=str(0)
         self.thisptr = new c_FGFDMExec(0,0)
+        if self.thisptr is NULL:
+            raise MemoryError()
 
     def __init__(self, root_dir=None):
-        if (root_dir is None):
+        if root_dir is None:
             self.find_root_dir()
         else:
-            if (not os.path.isdir(root_dir)):
+            if not os.path.isdir(root_dir):
                 raise IOError("Can't find root directory: {0}".format(root_dir))
-            else:
-                self.set_root_dir(root_dir)
+            self.set_root_dir(root_dir)
         self._class_list = []
         self._stop_realtime = False
         
@@ -256,23 +237,6 @@ cdef class FGFDMExec:
 
     def load_model(self, model, add_model_to_path = True):
         """
-        Loads an aircraft model.  The paths to the aircraft and engine
-        config file directories must be set prior to calling this.  See
-        below.
-        @param model the name of the aircraft model itself. This file will
-            be looked for in the directory specified in the AircraftPath variable,
-            and in turn under the directory with the same name as the model. For
-            instance: "aircraft/x15/x15.xml"
-        @param addModelToPath set to true to add the model name to the
-            AircraftPath, defaults to true
-        @return true if successful
-        """
-        
-        return self.thisptr.LoadModel(model.encode('utf8'),add_model_to_path)
-
-    def load_model_with_paths(self, model, aircraft_path,
-                   engine_path, systems_path, add_model_to_path = True):
-        """
         Loads an aircraft model.
         @param AircraftPath path to the aircraft/ directory. For instance:
             "aircraft". Under aircraft, then, would be directories for various
@@ -287,7 +251,24 @@ cdef class FGFDMExec:
             instance: "aircraft/x15/x15.xml"
         @param addModelToPath set to true to add the model name to the
             AircraftPath, defaults to true
-        @return true if successful 
+        @return true if successful
+        """
+        
+        return self.thisptr.LoadModel(model.encode('utf8'),add_model_to_path)
+
+    def load_model_with_paths(self, model, aircraft_path,
+                   engine_path, systems_path, add_model_to_path = True):
+        """
+        Loads an aircraft model.  The paths to the aircraft and engine
+        config file directories must be set prior to calling this.  See
+        below.
+        @param model the name of the aircraft model itself. This file will
+            be looked for in the directory specified in the AircraftPath variable,
+            and in turn under the directory with the same name as the model. For
+            instance: "aircraft/x15/x15.xml"
+        @param addModelToPath set to true to add the model name to the
+            AircraftPath, defaults to true
+        @return true if successful
         """
         return self.thisptr.LoadModel(model.encode('utf8'), aircraft_path.encode('utf8'),
             engine_path.encode('utf8'), systems_path.encode('utf8'), add_model_to_path.encode('utf8'))
@@ -429,9 +410,19 @@ cdef class FGFDMExec:
         """
         self.thisptr.SetLoggingRate(rate)
 
+    def set_output_filename(self, n, fname):
+        """
+        Sets (or overrides) the output filename
+        @param n index of file
+        @param fname the name of the file to output data to
+        @return true if successful, false if there is no output specified for the flight model
+        """
+        return self.thisptr.SetOutputFileName(n, fname.encode('utf8'))
+
     def get_output_filename(self, n):
         """
         Retrieves the current output filename.
+        @param n index of file
         @return the name of the output file for the first output specified by the flight model.
             If none is specified, the empty string is returned.
         """
@@ -516,7 +507,11 @@ cdef class FGFDMExec:
 
     def reset_to_initial_conditions(self, mode):
         """
-        Resets the initial conditions object and prepares the simulation to run again.
+        Resets the initial conditions object and prepares the simulation to run
+        again. If mode is set to 1 the output instances will take special actions
+        such as closing the current output file and open a new one with a
+        different name.
+        @param mode Sets the reset mode.*/
         """
         self.thisptr.ResetToInitialConditions(mode)
 
@@ -626,3 +621,6 @@ cdef class FGFDMExec:
 
     def propulsion_get_num_engines(self):
         return self.thisptr.GetPropulsion().GetNumEngines()
+
+    def load_ic(self, rstfile, useStoredPath):
+        return self.thisptr.GetIC().Load(rstfile, useStoredPath)

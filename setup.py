@@ -73,7 +73,9 @@ extensions = [
 		library_dirs = ['./vendors/jsbsim/mgw_build/src'],
 		libraries = ['JSBSim'],
 		),
-        Extension("pyfdm.exchange", ["pyfdm/exchange.pyx"],language="c++")
+    Extension("pyfdm.exchange", ["pyfdm/exchange.pyx"],
+        language="c++"
+        )
 ]
 
 
